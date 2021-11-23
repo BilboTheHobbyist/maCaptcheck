@@ -1,14 +1,17 @@
 <?php
 
 require __DIR__ . '/required.php';
+use Medoo\Medoo;
 header("Content-Type: application/json");
 
 // Oldest session allowed
 $session_min_date = date("Y-m-d H:i:s", strtotime("-" . SESSION_EXPIRE_MINUTES . " minutes"));
 // Delete old sessions
 $old_sessions = $database->select("sessions", "sid", ["timestamp[<]" => $session_min_date]);
-$database->delete("scrambled_answers", ["sid" => $old_sessions]);
-$database->delete("sessions", ["sid" => $old_sessions]);
+foreach ($old_sessions as $sid) {
+    $database->delete("scrambled_answers", ["sid" => $sid]);
+    $database->delete("sessions", ["sid" => $sid]);
+}
 
 switch ($VARS['action']) {
     case "ping":
@@ -18,9 +21,9 @@ switch ($VARS['action']) {
         // generate unique session ID that has an essentially zero chance of being a duplicate.
         // Contains a hash of a secure random number, a hash of the user's IP, and 23 uniqid() characters.
         $skey = uniqid(substr(hash("md5", mt_rand()), 3, 5) . hash("md5", getUserIP()), true);
-        
+
         // Image problem
-        // 
+        //
         // Get five random options
         $answer_count = $database->count('answers');
         $answers = $database->select('answers', ['aid', 'aname'], ["LIMIT" => [mt_rand(0, $answer_count - 6), 5]]);
@@ -33,15 +36,15 @@ switch ($VARS['action']) {
             $scrambled["real"][] = $a['aid'];
             $scrambled["fake"][] = substr(hash("md5", mt_rand()), 0, 20);
         }
-        
+
         // Text problem
         //
         // Get random question
         $access_count = $database->count('access_questions');
         $access_question = $database->select('access_questions', ['acqid', 'acqtext'], ["LIMIT" => [mt_rand(0, $access_count - 1), 1]])[0];
-        
+
         // Save the session data
-        $database->insert("sessions", ["skey" => $skey, "aid" => $correct_answer['aid'], "acqid" => $access_question['acqid'], "expired" => 0, "#timestamp" => "NOW()", "ipaddr" => getUserIP()]);
+        $database->insert("sessions", ["skey" => $skey, "aid" => $correct_answer['aid'], "acqid" => $access_question['acqid'], "expired" => 0, "timestamp" => Medoo::raw("NOW()"), "ipaddr" => getUserIP()]);
         $sid = $database->id();
         // Save the answer data
         $scrambled_insert = [];
@@ -49,11 +52,11 @@ switch ($VARS['action']) {
             $scrambled_insert[] = ["sid" => $sid, "aid" => $scrambled['real'][$i], "acode" => $scrambled['fake'][$i]];
         }
         $database->insert("scrambled_answers", $scrambled_insert);
-        
+
         // Vary question wording a little
         $questions = ["Please click on the [].", "Click the [].", "Find the []."];
         shuffle($questions);
-        
+
         $resp = [
             "session" => $skey,
             "id_prefix" => substr(hash("md5", mt_rand()), 3, 5),
