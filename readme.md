@@ -47,7 +47,7 @@ Example responses:
 `{"session":"some_session_id","result":true}`
 `{"session":"some_session_id","result":false,"msg":"Answer incorrect."}`
 
-###Content-Security-Policy and Nonces
+### Content-Security-Policy and Nonces
 
 Add `data-stylenonce="nonce_here"` to the `.captcheck_container` div.
 If you have multiple CAPTCHAs on one page, only one of them needs the nonce
