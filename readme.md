@@ -28,10 +28,18 @@ Add `captcheck.js` (or `captcheck.min.js`) into your page.
         </body>
     </html>
 
+### (WIP) Pass api_url as an argument to captcheck.js 
+
+You don't need to customize `captcheck.js` any longer with the correct api_url (cf. this [stackoverflow](https://stackoverflow.com/questions/2190801/passing-parameters-to-javascript-files) discussion). Instead, you can pass it as an argument in your `script` tag, such as `script id="captcheck" api_url="http://your.domain/api.php"`.
+Adapt the `id` value to avoid duplicates, if needed.
+
+### Post-processing
+
 When the form is submitted, your server will receive two extra form fields:
-`captcheck_session_code` and `captcheck_selected_answer`.
-In your form handling code, send a request to `http(s)://captcheck-url/api.php`.
-Pass the variables `session_id` and `answer_id` with the values sent with the form, and also pass the variable `action` with the value `verify`.
+- `captcheck_session_code`
+- `captcheck_selected_answer`.
+
+In your form handling code, send a request to `http(s)://captcheck-url/api.php`. Pass the variables `session_id` and `answer_id` with the values sent with the form, and also pass the variable `action` with the value `verify`.
 You will receive a JSON response with (among other things) `"result": true` or `"result": false`. If result is false, the user failed the test, and another variable `msg` is available with an explanation.
 
 Example URL:
@@ -52,8 +60,7 @@ If you have multiple CAPTCHAs on one page, only one of them needs the nonce spec
 1. Run composer install.
 2. Copy settings.template.php to settings.php and plug in your settings.
 3. Install the database (from `database.sql` ?).
-4. Customize captcheck.js with the correct api_url.
-5. Follow the [How to Use](#how-to-use) section and the example setup in test.html and test.php.
+4. Follow the [How to Use](#how-to-use) section and the example setup in test.html and test.php.
 
 
 ## Execution Flow

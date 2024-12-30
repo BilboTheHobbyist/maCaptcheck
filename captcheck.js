@@ -1,6 +1,10 @@
 window.onload = function () {
 
-    var api_url = "http://localhost/maCaptcheck/api.php";
+    var api_url= document.getElementById("captcheck").getAttribute("api_url");
+    if (typeof api_url === "undefined" ) {
+        var api_url = "https://captcheck.netsyms.com/api.php";
+     }
+     // alert(api_url);
 
     function chooseAnswer(idp, ans) {
         var box = document.getElementById("captcheck_" + idp + "_answer_" + ans);

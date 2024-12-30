@@ -2,7 +2,7 @@
 
 header("Content-Type: text/plain");
 
-$url = 'https://captcheck.netsyms.com/api.php';
+$url = 'http://localhost/maCaptcheck/api.php';
 $data = [
     'session_id' => $_POST['captcheck_session_code'],
     'answer_id' => $_POST['captcheck_selected_answer'],
